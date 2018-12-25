@@ -1,7 +1,7 @@
 <template>
     <div class="app-product">
         <div class="warpe">
-            <div class="warpe-d">
+            <div class="warpe-d" v-show="show">
                 <ul style="width:100%">
                     <li v-for="(item,i) of list" :key=i>
                         <div class="li-item">
@@ -19,6 +19,9 @@
                     </li>
                 </ul>
             </div>
+            <div v-show="!show" class="warpe-s">
+              <span>抱歉，未搜索到您输入的内容</span>
+            </div>
         </div>
     </div>
 </template>
@@ -26,21 +29,39 @@
     export default {
         data() {
             return {
-                list: []
+                list: [],
+                show:false
             }
         },
-        created() {
-            this.axios.get(
-                "http://127.0.0.1:3000/product/list"
-            ).then(res => {
-                this.list = res.data
-            })
+        watch:{
+        '$route':'getParams'
         },
+        created() {
+            let self = this
+            self.getParams()
+        },
+        methods: {
+            getParams() {
+                var information = this.$route.query.site
+                this.axios.get(
+                    "http://127.0.0.1:3000/search/shop?information=" + information
+                ).then(res => {
+                    if (res.data[0] == 1) {
+                        this.show=true
+                         this.list=res.data[1]
+                    }else if(res.data[0]==0){
+                      this.show=false
+                    }
+                })
+            }
+        },
+          
     }
 </script>
 <style>
     .app-product {
         width: 100%;
+        min-height: 600px;
         background-color: #f4f5f9;
         padding-bottom: 60px;
     }
@@ -119,43 +140,14 @@
         line-height: 30px;
         color: #505050;
         padding: 10px 10px 0px 10px;
+    } 
+    .warpe-s{
+        padding-top: 1.5rem;
+        text-align: center
     }
-
-    /* .li-item {
-        text-align: center;
-        cursor: pointer;
-        position: relative;
-        background: #fff;
+    .warpe-s span{
+        color: black;
+        font-size: 16px;
+        font-family: "微软雅黑"
     }
-
-    .item-container {
-        border: 2px solid #fff;
-        padding: 20px 10px;
-    }
-
-
-
-    .item-container img {
-        width: 210px;
-        height: 210px;
-    }
-
-
-
-    .item-a:hover {
-        color: #f36d6d
-    }
-
-
-
-    .item-red {
-        font-weight: normal;
-        font-size: 24px !important;
-        line-height: 30px;
-        color: #EB6118 !important;
-        width: 180px;
-        margin: 0px auto;
-        margin-top: 27px;
-        text-align: center;
-    } */
 </style>

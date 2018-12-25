@@ -1,11 +1,13 @@
 <template>
     <div class="app-home">
-        <div class="home-lun">
-            <ul class="lun-ul">
-                <li style="background: url(../../../../static/lunbo/2017102016131959e9b01f7f030.png)"></li>
-            </ul>
+        <div class="home-lun"  >
+            <mt-swipe :auto="3000" class="swipe">
+                        <mt-swipe-item v-for="(item,i) in listL" :key="i">
+                            <img :src="item" >
+                        </mt-swipe-item>
+            </mt-swipe>
         </div>
-        <div class="home-d">
+         <div class="home-d">
             <div class="home-div">
                 <div class="home-gs" v-for="(key,i) of list" @mouseover="isActive=i" @mouseout="isActive=-1">
                     <a href="#" class="home-gs-a">
@@ -40,49 +42,44 @@
                  uname:'更多优惠 尽在青橙手机官方商城',
                  img:'./../../static/zaxiang/img2.png'
                 }],
+            listL:[],
             isActive:-1,
             }
         },
         methods:{
 
-        }
+        },
+        created() {
+            this.axios.get(
+                "http://127.0.0.1:3000/home/swipe"
+            ).then(res=>{
+                for(var i=0;i<res.data.length;i++){
+                    this.listL.push(res.data[i].img_url)
+                }    
+            })
+        },
     }
 </script>
 <style>
     .app-home{
         overflow: hidden;
         background:#f7f7f7;
+        width: 100%;
     }
     .home-lun {
         position: relative;
         z-index: 1;
     }
-
-    .lun-ul {
+    .swipe img{
         width: 100%;
-        position: relative;
-        height: 780px;
-        overflow: hidden;
-        background-color: #eee;
+        height: 100%;
     }
-
-    .lun-ul li {
-        width: 2560px;
-        height: 780px;
-        position: absolute;
-        top: 0;
-        margin-left: -1280px;
-        left: 50%;
-        z-index: 1;
-        -webkit-transition: all .8s linear;
-        transition: all .8s linear
+    .swipe {
+        height:225px;
     }
-
     .home-d {
         padding: 0 20px;
         width: 100%;
-        max-width: 1400px;
-        min-width: 1200px;
         margin: 0 auto;
         margin-bottom: 30px;
         margin-top: 30px;
@@ -100,14 +97,15 @@
         overflow: hidden;
         border-radius: 5px;
         box-shadow: 0 -1px 8px rgba(0, 0, 0, 0.03), 0 1px 8px rgba(0, 0, 0, 0.03);
+        display: flex;
+        flex-wrap: wrap;
     }
 
     .home-gs {
         position: relative;
         border-right: solid 1px #eee;
-        display: inline;
-        float: left;
-        width: 25%;
+        display: block;
+        width: 50%;
     }
 
     .home-gs-a {
@@ -117,14 +115,14 @@
     }
 
     .home-gs-a>h2 {
-        font-size: 20px;
+        font-size: 13px;
         line-height: 35px;
         text-align: center;
         font-weight: normal;
     }
 
     .home-gs-a>h4 {
-        font-size: 14px;
+        font-size: 12px;
         line-height: 29px;
         text-align: center;
         font-weight: normal;

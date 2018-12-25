@@ -1,101 +1,144 @@
 <template>
   <div id="app" class="app">
-    <div class="header" :class="{'header-w':befor}">
-      <div class="nav">
-        <router-link class="nav-a" to="/"></router-link>
-        <nav class="app-nav">
-          <ul>
-            <li class="nav-li-a"><routerLink to="/product" :class="{'nav-li-a-a':befor}">品牌</routerLink></li>
-            <li class="nav-li-b"><routerLink to="/product" :class="{'nav-li-a-a':befor}">青橙三好手机</routerLink></li>
-            <li class="nav-li-b"><routerLink to="/product" :class="{'nav-li-a-a':befor}">VOGA系列</routerLink></li>
-            <li class="nav-li-b"><routerLink to="/product" :class="{'nav-li-a-a':befor}">智能·配件</routerLink></li>
-            <li class="nav-li-a"><routerLink to="/product" :class="{'nav-li-a-a':befor}">商场</routerLink></li>
-            <li class="nav-li-a"><routerLink to="/product" :class="{'nav-li-a-a':befor}">社区</routerLink></li>
-            <li class="nav-li-a"><routerLink to="/product" :class="{'nav-li-a-a':befor}">服务</routerLink></li>
-          </ul>
-        </nav>
-        <div class="app-login">
-          <routerLink to="/" class="login-a"></routerLink>
-          <routerLink to="/" class="login-a"></routerLink>
-          <routerLink to="/" class="login-a"></routerLink>
-        </div>
+    <div class="nav">
+      <div class="backOff"><i class="iconfont" @click="back">&#xe64e;</i></div>
+      <router-link class="nav-a animated flipInY" to="/" v-if="select"></router-link>
+      <div class="nav-d animated flipInX" v-else="select">
+        <input type="text" placeholder="请输入搜索内容" @keyup.13="search" v-model="ferret">
+        <span @click="search">搜索</span>
       </div>
+      <router-link to="/login" class="login-a" v-if="!this.$store.state.islogin"></router-link>
+      <div class="cancellation" @click="out"><i class="iconfont" v-if="this.$store.state.islogin">&#xe618;</i></div>
     </div>
-    <router-view />
-    <div class="app-footer">
-      <div class="app-footer-ts">
-        <div class="footer-ts-d">
-          <div class="ts-d1">
-            <h6>购买指南</h6>
-            <div>
-              <a href="#" v-for="(item,i) of list[0]">{{item}}</a>
-            </div>
-            <h6>关于青橙</h6>
-            <div>
-              <a href="#">新闻中心</a>
-              <a href="#">加入我们</a>
-              <a href="#">联系我们</a>
-            </div>
-          </div>
-          <div class="ts-d1">
-            <h6>橙心服务</h6>
-            <div>
-              <a href="#">售后政策</a>
-              <a href="#">售后流程</a>
-              <a href="#">保外维修</a>
-            </div>
-            <h6>关注青橙</h6>
-            <div>
-              <a href="#">新浪微博</a>
-              <a href="#">官方微信</a>
-              <a href="#">官方论坛</a>
-            </div>
-          </div>
-        </div>
-        <div class="footer-img">
-          <div class="f-img-d">
-            <img src="../static/erweima/sina.jpg" alt="">
-          </div>
-          <div class="f-img-d">
-            <img src="../static/erweima/wechat.jpg" alt="">
-          </div>
-          <div>
-            <img src="../static/zaxiang/400.jpg" alt="">
-          </div>
-          <div>
-            <img src="../static/zaxiang/online_tip_bg.png" alt="">
-          </div>
-        </div>
+    <router-view ></router-view>
+    <div class="foot_tab" v-if="iscar">
+      <div>
+        <router-link to="/">
+          <div class="tab_icon"><i class="iconfont icon-shouye" :class="{icon_color:iscolor}"></i></div>
+          <div><span :class="{span_color:iscolor}">主页</span></div>
+        </router-link>
+      </div>
+      <div>
+        <router-link to="/product">
+          <div class="tab_icon"><i class="iconfont" :class="{icon_color:iscolor2}">&#xe65a;</i></div>
+          <div><span :class="{span_color:iscolor2}">商城</span></div>
+        </router-link>
+      </div>
+      <div>
+        <router-link to="/car">
+          <div class="tab_icon"><i class="iconfont" :class="{icon_color:iscolor3}">&#xe63f;</i></div>
+          <div><span :class="{span_color:iscolor3}">购物车</span> </div>
+        </router-link>
+      </div>
+      <div @click="select?select=false:select=true">
+        <div class="tab_icon"><i class="iconfont" :class="{icon_color:iscolor4}">&#xe651;</i></div>
+        <div><span>搜索</span></div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+  import { Toast } from 'mint-ui';
   export default {
     data() {
       return {
         list: [
           ["发货时间", "关于签收", "付款方式"],
         ],
-        befor:false
+        iscolor: false,
+        iscolor2: false,
+        iscolor3: false,
+        iscolor4: false,
+        iscar: true,
+        ferret: "",
+        select: true
       }
     },
     updated() {
-      if(this.$route.path!="/"){
-        this.befor=true
-      }else{
-        this.befor=false
-      }
+      this.geturl()
     },
     created() {
-      if(this.$route.path!="/"){
-        this.befor=true
-      }else{
-        this.befor=false
-      }
-    },methods: {
+      this.geturl()
 
+      let uid = localStorage.getItem("uid")
+      if (uid != null) {
+        this.$store.commit("getlogin", uid)
+      } else if (!uid) {
+        this.$store.state.islogin = false
+      }
+    },
+    methods: {
+      search() {
+        var information = this.ferret
+        if (information!= "") {
+          this.$router.push({
+                path: '/search',
+                query: {
+                  site: information,
+                }
+              })
+        }else {
+          Toast({
+            message: '请输入搜索内容',
+            position: 'middle',
+            duration: 2000
+          });
+        }
+      },
+      out() {
+        this.axios.get(
+          "http://127.0.0.1:3000/user/signout"
+        )
+        localStorage.removeItem("uid")
+        this.$store.commit('signout')
+      },
+      back() {
+        history.back(-1)
+      },
+      geturl() {
+        if (this.$route.path == "/") {
+          this.iscolor = true
+        } else {
+          this.iscolor = false
+        }
+
+        if (this.$route.path.indexOf("product") != -1) {
+          this.iscolor2 = true
+        } else {
+          this.iscolor2 = false
+        }
+
+        if (this.$route.path.indexOf("shop") != -1) {
+          this.iscar = false
+        } else {
+          this.iscar = true
+        }
+
+        if (this.$route.path.indexOf("car") != -1) {
+          this.iscolor3 = true
+        } else {
+          this.iscolor3 = false
+        }
+      },
+      getLocalStorage() {
+        var exp = 60 * 60 * 24 * 1000; // 一天的秒数
+        if (localStorage.getItem('time')) {
+          var vals = localStorage.getItem('time') // 获取本地存储的值 
+          // 如果(当前时间 - 存储的元素在创建时候设置的时间) > 过期时间 
+          var isTimed = (new Date().getTime() - vals) > exp;
+          if (isTimed) {
+            localStorage.removeItem('uid');
+            this.$store.commit('signout')
+            return null;
+          }
+        } else {
+          return null;
+        }
+      },
+    },
+    mounted() {
+      this.getLocalStorage()
     },
   }
 </script>
@@ -107,110 +150,44 @@
     box-sizing: border-box;
   }
 
+
+  input {
+    outline: none;
+  }
+
   .app {
-    min-width: 1200px;
-    position: relative;
     width: 100%;
+  }
+
+  body {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   }
 
   a {
     text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
   }
 
   ul {
     list-style: none
   }
 
-  .app-footer {
-    width: 100%;
-    background: #fff;
-    position: relative;
-  }
-
-  .app-footer-ts {
-    width: 100%;
-    max-width: 1400px;
-    min-width: 1200px;
-    background: #fff;
-    margin: 0 auto;
-    padding: 0 2.5%;
-  }
-
-  .app-footer-ts:before {
-    content: "";
-    display: table;
-  }
-
-  .footer-ts-d {
-    width: 50%;
-    display: inline-block;
-    overflow: hidden;
-    padding: 60px 0;
-    position: relative;
-    top: -15px
-  }
-
-  .footer-img {
-    display: inline-block;
-    width: 39%;
-    overflow: hidden;
-    padding: 60px 0;
-    position: relative;
-    padding-left: 16%;
-  }
-
-  .f-img-d {
-    display: inline-block;
-  }
-
-  .ts-d1 {
-    display: inline-block;
-    position: relative;
-    vertical-align: middle;
-    width: 49%;
-  }
-
-  .ts-d1 h6 {
-    padding: 0 10px;
-    margin-bottom: 15px;
-    margin-top: 5px;
-  }
-
-  .ts-d1 a {
-    float: none;
-    display: block;
-    line-height: 30px;
-    font-size: 12px;
-    text-align: left;
-    color: #898989;
-    padding: 0 10px;
-    min-width: 75px;
-    position: relative;
-    width: 10%;
-  }
-
-  .header {
-    position: absolute;
-    top: 0;
-    left: 0;
-    margin: auto;
-    z-index: 100;
-    height: 90px;
-    width: 100%;
-    background: transparent;
-  }
-  .header-w{
-    background:#ffffff;
-    border-bottom:1px solid #eee;
-  }
   .nav {
-    max-width: 1400px;
-    min-width: 1200px;
     padding: 0 20px;
     margin: 0 auto;
-    height: 90px;
+    height: 70px;
     width: 100%;
     position: relative;
+    z-index: 800;
+    background: #ff6243;
+  }
+
+  .icon_color {
+    color: #ff6243 !important;
+  }
+
+  .span_color {
+    color: #ff6243 !important;
   }
 
   .nav-a {
@@ -219,12 +196,39 @@
     width: 160px;
     height: 60px;
     display: block;
-    top: 15px;
-    left: 20px;
+    top: 9px;
+    left: 50%;
+    margin-left: -80px;
   }
 
-  .ts-d1 a:hover {
-    color: red;
+  .nav-d {
+    position: absolute;
+    width: 60%;
+    height: 60px;
+    top: 1rem;
+    left: 40%;
+    margin-left: -80px;
+    text-align: center
+  }
+
+  .nav-d input {
+    width: 85%;
+    height: 37px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  }
+
+  .nav-d span {
+    color: #ffffff;
+    font-size: 14px;
   }
 
   .app-nav {
@@ -235,88 +239,128 @@
     margin-left: -430px;
   }
 
-  .app-nav ul {
-    display: inline-block;
-  }
-
-  .app-nav:before {
-    content: "";
-    display: table;
-  }
-
-  .nav-li-b {
-    display: inline-block;
-    float: left;
-    position: relative;
-    width: 140px;
-    text-align: center;
-  }
-
-  .nav-li-a {
-    display: inline-block;
-    float: left;
-    position: relative;
-    width: 90px;
-    text-align: center;
-  }
-
-  .nav-li-a a,
-  .nav-li-b a {
-    font-size: 14px;
-    padding: 0 20px;
-    width: 100%;
-    color: #fff;
-    text-align: center;
-    position: relative;
-    z-index: 100;
-    line-height: 90px;
-    /* color: #434343; */
-  }
-  .nav-li-a-a{
-    color:#434343 !important;
-  }
-  .app-login {
-    width: 240px;
-    height: 44px;
-    position: absolute;
-    top: 0;
-    margin-top: 28px;
-    right: 20px;
-  }
-
   .login-a {
     width: 60px;
     height: 44px;
-    display: inline-block;
-    font-size: 12px;
-    color: #898989;
+    display: block;
     padding: 0 10px;
     line-height: 40px;
-    float: left;
-    min-width: 75px;
-    text-align: center;
-  }
-
-  .app-login a:nth-child(1) {
-    background: url("../static/login/icon_cart_white.png");
-    background-position: 50%;
-    background-repeat: no-repeat;
-  }
-
-  .app-login a:nth-child(2) {
+    float: right;
+    position: relative;
+    top: 18px;
+    left: 13px;
     background: url("../static/login/icon_user_white.png");
     background-position: 50%;
     background-repeat: no-repeat;
   }
 
-  .app-login a:nth-child(3) {
-    background: url("../static/login/icon_myui.png");
-    background-position: 50%;
-    background-repeat: no-repeat;
+  .login-b {
+    width: 60px;
+    height: 44px;
+    display: inline-block;
+    font-size: 12px;
+    color: #fff;
+    padding: 0 10px;
+    line-height: 40px;
+    min-width: 75px;
+    text-align: center;
+    cursor: pointer;
   }
-  .waper{
-    width: 1190px;
+
+  .foot_tab {
+    display: flex;
+    width: 100%;
+    position: fixed;
+    top: 100%;
+    margin-top: -60px;
+    left: 0;
+    background: #ffffff;
+    border-top: 1px solid #dddddd;
+    z-index: 900;
+  }
+
+  .tab_icon {
+    padding-top: 10px;
+  }
+
+  .foot_tab>div {
+    width: 25%;
+    text-align: center
+  }
+
+  .foot_tab span {
+    font-weight: 400;
+    font-size: 12px;
+    font-family: "STHeiti";
+    color: #4c4747
+  }
+
+  .waper {
+    width: 100%;
     margin: 0 auto;
     padding-top: 0px;
+  }
+
+  .btn-warning {
+    width: 50%;
+    height: 40px;
+    margin-top: 10px;
+    font-size: 14px;
+    padding: 10px 10px;
+    line-height: 1.3333333;
+    color: #fff;
+    background-color: #ed623b;
+    border: 1px solid #eea236;
+    font-weight: normal;
+    display: block;
+    text-align: center
+  }
+
+  .btn-left {
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
+  }
+
+  .btn-right {
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
+  }
+
+  * input::-webkit-input-placeholder {
+    color: #d3d3d3
+  }
+
+
+  .iconfont {
+    font-family: "iconfont" !important;
+    font-size: 27px;
+    font-style: normal;
+    color: black;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-stroke-width: 0.2px;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .cancellation {
+    float: right;
+  }
+
+  .cancellation i {
+    font-size: 18px;
+    color: white;
+  }
+
+  .backOff {
+    float: left;
+  }
+
+  .backOff>i {
+    font-size: 24px;
+    color: white;
+  }
+
+  .cancellation,
+  .backOff {
+    margin-top: 23px;
   }
 </style>

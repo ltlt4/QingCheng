@@ -4,16 +4,24 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import axios from "axios"
+import qs from "qs"
+import'mint-ui/lib/style.css'
+import { Swipe, SwipeItem} from 'mint-ui';
+import vueCode from "vue-vercode"
+import VueTouch from 'vue-touch'
+import store from "./store/index"
+import animated from 'animate.css'
+
+Vue.use(vueCode)
+Vue.use(animated)
+Vue.use(VueTouch, {name: 'v-touch'})
+Vue.component(Swipe.name, Swipe);
+Vue.component(SwipeItem.name, SwipeItem);
 //导入axios
 //要求axios每次必须携带cookie去服务端
 axios.defaults.withCredentials=true;
 Vue.prototype.axios=axios;
-//引入Vuex
-import Vuex from "Vuex" 
-Vue.use(Vuex);
-var store=new Vuex.Store({
-
-})
+Vue.prototype.qs = qs;
 
 Vue.config.productionTip = false
 
