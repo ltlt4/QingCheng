@@ -83,7 +83,7 @@
                         localStorage.setItem("uid", res.data[1])
                         var curtime = new Date().getTime();
                         localStorage.setItem("time",curtime)
-                        this.$router.push('/');
+                         location.replace('/')
                     } else if (res.data[0] == 0) {
                         setTimeout(() => {
                             this.inrt3 = "用户名或者密码错误"

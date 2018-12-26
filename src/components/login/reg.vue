@@ -39,12 +39,11 @@
     </div>
 </template>
 <script>
-    import { Toast } from 'mint-ui';
-    //import abc from '../sub/vue-Verification'
+    import abc from '../sub/vue-Verification'
     export default {
-        // components: {
-        //     "vue-vuecode": abc
-        // },
+        components: {
+            "vue-vuecode": abc
+        },
         data() {
             return {
                 phone: "",
@@ -58,7 +57,7 @@
                 intr: "",
                 intr2: "",
                 intr3: "",
-                canwidth: "190",
+                canwidth: "150",
                 arr: { phone: false, email: false, password: false, dbpwd: false, code: false },
                 Ver: "",
                 code: false,
@@ -176,7 +175,7 @@
                         data: postData
                     }).then(res => {
                         if (res.data == 1) {
-                            Toast({
+                            this.Toast({
                                 message: '注册成功',
                                 position: 'middle',
                                 duration: 2000
@@ -185,7 +184,7 @@
                         }
                     })
                 } else {
-                    Toast({
+                    this.Toast({
                         message: '注册失败,请重试',
                         position: 'middle',
                         duration: 2000

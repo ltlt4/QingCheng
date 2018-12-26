@@ -9,10 +9,10 @@
                                 <router-link :to="`/shop/${item.kid}`"><img :src="item.img_url" alt=""></router-link>
                             </div>
                             <div class="item-describe">
-                                <p><a href="javascript:;" class="item-a">{{item.kname}}</a></p>
+                                <p><a href="javascript:;" class="item-a" v-html='ruleTitle(i)'></a></p>
                                 <span class="item-s">{{item.mininrt}}</span>
                                 <a href="javascript:;" class="item-c">
-                                    <p>￥{{item.Price}}.00</p>
+                                    <p>{{item.Price|capitalize}}</p>
                                 </a>
                             </div>
                         </div>
@@ -20,7 +20,7 @@
                 </ul>
             </div>
             <div v-show="!show" class="warpe-s">
-              <span>抱歉，未搜索到您输入的内容</span>
+                <span>抱歉，未搜索到您输入的内容</span>
             </div>
         </div>
     </div>
@@ -30,11 +30,12 @@
         data() {
             return {
                 list: [],
-                show:false
+                show: false,
+                information:""
             }
         },
-        watch:{
-        '$route':'getParams'
+        watch: {
+            '$route': 'getParams'
         },
         created() {
             let self = this
@@ -42,20 +43,30 @@
         },
         methods: {
             getParams() {
-                var information = this.$route.query.site
+                this.information = this.$route.query.site
                 this.axios.get(
-                    "http://127.0.0.1:3000/search/shop?information=" + information
+                    "http://127.0.0.1:3000/search/shop?information=" + this.information
                 ).then(res => {
                     if (res.data[0] == 1) {
-                        this.show=true
-                         this.list=res.data[1]
-                    }else if(res.data[0]==0){
-                      this.show=false
+                        this.show = true
+                        this.list = res.data[1]
+                    } else if (res.data[0] == 0) {
+                        this.show = false
                     }
                 })
+            },
+            ruleTitle(i) {
+                var str = this.list[i].kname;
+                if(!str){
+                    return null
+                }
+                let reg = new RegExp(this.information, 'ig');
+                let replaceString = '<span class="search-text">' + this.information + '</span>';
+                str =str.replace(reg, replaceString);
+                return str
             }
         },
-          
+
     }
 </script>
 <style>
@@ -140,14 +151,19 @@
         line-height: 30px;
         color: #505050;
         padding: 10px 10px 0px 10px;
-    } 
-    .warpe-s{
+    }
+
+    .warpe-s {
         padding-top: 1.5rem;
         text-align: center
     }
-    .warpe-s span{
+
+    .warpe-s span {
         color: black;
         font-size: 16px;
         font-family: "微软雅黑"
+    }
+    .search-text{
+        color:red
     }
 </style>

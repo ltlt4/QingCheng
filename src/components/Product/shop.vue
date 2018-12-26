@@ -39,12 +39,12 @@
                 <div class="right-number">
                     <div class="number-div"><span>购买数量:</span></div>
                     <a href="javascript:;" @click="total">-</a>
-                    <input type="text" v-model="pres">
+                    <input type="text" v-model="pres" @focus="buy">
                     <a href="javascript:;" @click="_total">+</a>
                 </div>
                 <div class="prodetail_top_right_line"></div>
                 <div class="right-total">
-                    <span>总价: <span class="total-span">￥{{totalPrice}}.00</span></span>
+                    <span>总价: <span class="total-span">{{totalPrice|capitalize}}</span></span>
                     <button class="intbot" type="button" style="width:40%;border-radius:30px;" @click="skip">确定</button>
                 </div>
             </div>
@@ -73,7 +73,7 @@
                                 <li><span v-for="(inrt,i) of inrtmin">{{inrt}}</span></li>
                             </ul>
                             <div>
-                                <span class="right-price">￥{{list.Price}}.00</span>
+                                <span class="right-price">{{list.Price|capitalize}}</span>
                                 <span class="praise">总销售:<span>{{list.sales}}</span></span>
                                 <span class="praise">好评:<span>{{list.Praise}}</span></span>
                             </div>
@@ -146,7 +146,7 @@
                     </router-link>
                 </div>
                 <div class="shop_but">
-                    <a class="btn-warning btn-left" >立即购买</a>
+                    <a class="btn-warning btn-left">立即购买</a>
                     <a class="btn-warning btn-right" @click="shopcar">加入购物车</a>
                 </div>
             </div>
@@ -154,7 +154,6 @@
     </div>
 </template>
 <script>
-import { Toast } from 'mint-ui';
     export default {
         data() {
             return {
@@ -236,7 +235,7 @@ import { Toast } from 'mint-ui';
             total() {
                 if (this.pres <= 1) {
                     this.pres = 1
-                    Toast({
+                    this.Toast({
                         message: '最少购买一件哦',
                         position: 'bottom',
                         duration: 2000
@@ -265,14 +264,14 @@ import { Toast } from 'mint-ui';
                     data: postData
                 }).then(res => {
                     if (res.data == 1) {
-                        Toast({
+                        this.Toast({
                             message: '加入成功',
                             position: 'middle',
                             duration: 2000
                         });
                         this.hidden()
                     } else if (res.data == 0) {
-                        Toast({
+                        this.Toast({
                             message: '加入失败，请重试',
                             position: 'middle',
                             duration: 2000
@@ -290,7 +289,7 @@ import { Toast } from 'mint-ui';
             shopcar() {
                 if (!this.$store.state.islogin) {
                     this.modal = false
-                    Toast({
+                    this.Toast({
                         message: '请先登录',
                         position: 'middle',
                         duration: 2000
@@ -299,6 +298,25 @@ import { Toast } from 'mint-ui';
                     this.modal = true
                 }
             },
+            buy() {
+                this.MessageBox.prompt("", {
+                    message: '购买数量',
+                    title: '',
+                    showConfirmButton: true,
+                    showCancelButton: true,
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    inputPlaceholder: 1
+                }).then(({ value, action }) => {
+                    if (action == 'confirm') {
+                        this.pres = value
+                    }
+                }).catch(err => {
+                    if (err == 'cancel') {
+                        return null
+                    }
+                });
+            }
         }
     }
 </script>
@@ -437,7 +455,7 @@ import { Toast } from 'mint-ui';
     }
 
     .praise {
-        margin-left: 50px
+        margin-left: 40px
     }
 
     .right-color,
@@ -553,14 +571,15 @@ import { Toast } from 'mint-ui';
     }
 
     .right-total>span {
-        font-size: 20px;
+        width: 40%;
+        font-size: 18px;
         font-weight: normal;
         color: #000
     }
 
     .total-span {
         color: #eb6118;
-        font-size: 20px;
+        font-size: 18px;
     }
 
     .right-shopcar>a {
@@ -629,6 +648,10 @@ import { Toast } from 'mint-ui';
 
     .foot-content1>div {
         margin-bottom: 30px;
+    }
+
+    .mint-msgbox {
+        width: 65% !important;
     }
 
     .modal-bg {

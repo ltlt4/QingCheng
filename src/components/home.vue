@@ -81,7 +81,7 @@
         padding: 0 20px;
         width: 100%;
         margin: 0 auto;
-        margin-bottom: 30px;
+        margin-bottom: 80px;
         margin-top: 30px;
     }
 

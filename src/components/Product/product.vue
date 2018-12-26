@@ -12,7 +12,7 @@
                                 <p><a href="javascript:;" class="item-a">{{item.kname}}</a></p>
                                 <span class="item-s">{{item.mininrt}}</span>
                                 <a href="javascript:;" class="item-c">
-                                    <p>￥{{item.Price}}.00</p>
+                                    <p>{{item.Price|capitalize}}</p>
                                 </a>
                             </div>
                         </div>
@@ -121,41 +121,4 @@
         padding: 10px 10px 0px 10px;
     }
 
-    /* .li-item {
-        text-align: center;
-        cursor: pointer;
-        position: relative;
-        background: #fff;
-    }
-
-    .item-container {
-        border: 2px solid #fff;
-        padding: 20px 10px;
-    }
-
-
-
-    .item-container img {
-        width: 210px;
-        height: 210px;
-    }
-
-
-
-    .item-a:hover {
-        color: #f36d6d
-    }
-
-
-
-    .item-red {
-        font-weight: normal;
-        font-size: 24px !important;
-        line-height: 30px;
-        color: #EB6118 !important;
-        width: 180px;
-        margin: 0px auto;
-        margin-top: 27px;
-        text-align: center;
-    } */
 </style>

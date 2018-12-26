@@ -162,7 +162,7 @@
         cursor: pointer;
     }
     #vueVer .small{
-       width: 200px;
+       width: 145px;
        height: 40px;
        border: #d3d3d3 1px solid;
        border-radius: 4px;

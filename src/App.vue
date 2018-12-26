@@ -10,7 +10,7 @@
       <router-link to="/login" class="login-a" v-if="!this.$store.state.islogin"></router-link>
       <div class="cancellation" @click="out"><i class="iconfont" v-if="this.$store.state.islogin">&#xe618;</i></div>
     </div>
-    <router-view ></router-view>
+    <router-view></router-view>
     <div class="foot_tab" v-if="iscar">
       <div>
         <router-link to="/">
@@ -39,7 +39,6 @@
 </template>
 
 <script>
-  import { Toast } from 'mint-ui';
   export default {
     data() {
       return {
@@ -71,15 +70,15 @@
     methods: {
       search() {
         var information = this.ferret
-        if (information!= "") {
+        if (information != "") {
           this.$router.push({
-                path: '/search',
-                query: {
-                  site: information,
-                }
-              })
-        }else {
-          Toast({
+            path: '/search',
+            query: {
+              site: information,
+            }
+          })
+        } else {
+          this.Toast({
             message: '请输入搜索内容',
             position: 'middle',
             duration: 2000
@@ -87,11 +86,28 @@
         }
       },
       out() {
-        this.axios.get(
-          "http://127.0.0.1:3000/user/signout"
-        )
-        localStorage.removeItem("uid")
-        this.$store.commit('signout')
+        this.MessageBox.confirm('', {
+          message: '确定要注销用户么',
+          title: '提示',
+          showConfirmButton: true,
+          showCancelButton: true,
+          confirmButtonText: '确定',
+          cancelButtonText: '取消'
+        }).then(action => {
+          if (action == 'confirm') {
+            this.axios.get(
+              "http://127.0.0.1:3000/user/signout"
+            )
+            localStorage.removeItem("uid")
+            this.$store.commit('signout')
+            this.$router.push("/")
+          }
+        }).catch(err => {
+          if (err == 'cancel') {
+            return null
+          }
+        });
+
       },
       back() {
         history.back(-1)

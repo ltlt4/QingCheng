@@ -4,21 +4,23 @@
             <h3>购物车</h3>
         </div>
         <div class="car-body">
-            <div class="car-shop" v-for="(item,i) of list" :key="i" >
+            <div class="car-shop" v-for="(item,i) of list" :key="i">
                 <div class="shop-icon" @click="culling(i)"><i class="iconfont" :class="{'icon-red':!show[i],'icon-yuanquanweixuanfuben':show[i],'icon-gou':!show[i]}"></i></div>
-                <div class="warp">
-                    <div class="shop-picture"><img :src="item.img" alt=""></div>
-                    <div class="shop-information">
-                        <span>{{item.kname}}</span>
-                        <p>{{item.color}} {{item.memory}}G {{item.setMeal}}</p>
-                        <p class="item-red">￥{{item.price}}.00</p>
-                        <div class="right-pres">
-                            <a href="javascript:;" @click="total(i)" >-</a>
-                            <input type="text" v-model="pres[i]">
-                            <a href="javascript:;" @click="_total(i)">+</a>
+                <v-touch v-on:press="strike(i)" style="width: 90%">
+                    <div class="warp">
+                        <div class="shop-picture"><img :src="item.img" alt=""></div>
+                        <div class="shop-information">
+                            <span>{{item.kname}}</span>
+                            <p>{{item.color}} {{item.memory}}G {{item.setMeal}}</p>
+                            <p class="item-red">{{item.price|capitalize}}</p>
+                            <div class="right-pres">
+                                <a href="javascript:;" @click="total(i)">-</a>
+                                <input type="text" v-model="pres[i]" @focus="buy(i)">
+                                <a href="javascript:;" @click="_total(i)">+</a>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </v-touch>
             </div>
             <div class="allele">
                 <div class="all_icon" @click="addUp">
@@ -28,7 +30,7 @@
                     <span>全选</span>
                 </div>
                 <div class="all_total">
-                    <span>合计：￥{{add}}.00</span>
+                    <span>合计：{{add|capitalize}}</span>
                 </div>
                 <div class="all_settlement">
                     <button>去结算</button>
@@ -38,92 +40,151 @@
     </div>
 </template>
 <script>
-import { Toast } from 'mint-ui';
     export default {
         computed: {
-           add:function(){
-               var  total=0
-               for(var i=0;i<this.show.length;i++){
-                   if(!this.show[i]){
-                      total+=this.list[i].price*this.pres[i]
-                   }
-               }
-                 return total
-           }
+            add: function () {
+                var total = 0
+                for (var i = 0; i < this.show.length; i++) {
+                    if (!this.show[i]) {
+                        total += this.list[i].price * this.pres[i]
+                    }
+                }
+                return total
+            }
         },
         data() {
             return {
-                pres:[],
-                list:[],
-                show:[],
-                isactive:true,
-                icon:-1,
-                ismt:true
+                pres: [],
+                list: [],
+                show: [],
+                isactive: true,
+                icon: -1,
+                ismt: true
             }
         },
         methods: {
+            strike(i) {
+                this.MessageBox.confirm("", {
+                    message: '确定要删除么',
+                    title: '',
+                    showConfirmButton: true,
+                    showCancelButton: true,
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                }).then((action) => {
+                    if (action == 'confirm') {
+                        this.axios.post(
+                            "http://127.0.0.1:3000/product/delete",
+                            `pid=${this.list[i].pid}&color=${this.list[i].color}`
+                        ).then(res => {
+                            if (res.data == 1) {
+                                this.Toast({
+                                    message: '删除成功',
+                                    position: 'middle',
+                                    duration: 2000
+                                });
+                                this.readcar()
+                            }else if(res.data==0){
+                                this.Toast({
+                                    message: '删除失败，请重试',
+                                    position: 'middle',
+                                    duration: 2000
+                                });
+                            }
+                        })
+                    }
+                }).catch(err => {
+                    if (err == 'cancel') {
+                        return null
+                    }
+                });
+            },
             total(i) {
                 if (this.pres[i] <= 1) {
-                    this.$set(this.pres,i,1)
-                    Toast({
+                    this.$set(this.pres, i, 1)
+                    this.Toast({
                         message: '最少购买一件哦',
                         position: 'bottom',
                         duration: 2000
                     });
                 } else {
-                    this.$set(this.pres,i,this.pres[i]-1)
+                    this.$set(this.pres, i, this.pres[i] - 1)
                 }
             },
             _total(i) {
-                this.$set(this.pres,i,this.pres[i]+1)
+                this.$set(this.pres, i, this.pres[i] + 1)
             },
-            culling(i){
-                this.show[i]?this.$set(this.show,i,false):this.$set(this.show,i,true)
-                
+            culling(i) {
+                this.show[i] ? this.$set(this.show, i, false) : this.$set(this.show, i, true)
+
             },
-            addUp(){
-               if(this.ismt){
-                   this.ismt=false;
-                   for(var i=0;i<this.show.length;i++){
-                    this.$set(this.show,i,false)
-                   }
-               }else if(!this.ismt){
-                   this.ismt=true;
-                   for(var i=0;i<this.show.length;i++){
-                    this.$set(this.show,i,true)
-                   }
-               }
+            addUp() {
+                if (this.ismt) {
+                    this.ismt = false;
+                    for (var i = 0; i < this.show.length; i++) {
+                        this.$set(this.show, i, false)
+                    }
+                } else if (!this.ismt) {
+                    this.ismt = true;
+                    for (var i = 0; i < this.show.length; i++) {
+                        this.$set(this.show, i, true)
+                    }
+                }
             },
-            checkAdult(arr){
-                return arr==false
+            checkAdult(arr) {
+                return arr == false
+            },
+            buy(i) {
+                this.MessageBox.prompt("", {
+                    message: '购买数量',
+                    title: '',
+                    showConfirmButton: true,
+                    showCancelButton: true,
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    inputPlaceholder: this.pres[i]
+                }).then(({ value, action }) => {
+                    if (action == 'confirm') {
+                        this.$set(this.pres, i, value)
+                    }
+                }).catch(err => {
+                    if (err == 'cancel') {
+                        return null
+                    }
+                });
+            },
+            readcar() {
+                this.axios.get(
+                    "http://127.0.0.1:3000/product/readcar"
+                ).then(res => {
+                    this.list = res.data
+                    for (var i = 0; i < this.list.length; i++) {
+                        var a = i
+                        this.pres.push(this.list[i].pres)
+                        this.show.push(true)
+                    }
+                })
             }
         },
         created() {
-           this.axios.get(
-               "http://127.0.0.1:3000/product/readcar"
-           ).then(res=>{
-               this.list=res.data
-               for(var i=0;i<this.list.length;i++){
-                   var a=i
-                   this.pres.push(this.list[i].pres)
-                   this.show.push(true)
-               }
-           })
-           if(!localStorage.getItem("uid")){
-                Toast({
-                    message: '清先登录',
+            this.readcar()
+            if (!localStorage.getItem("uid")) {
+                this.Toast({
+                    message: '请先登录',
                     position: 'middle',
                     duration: 2000
-                    });
+                });
                 this.$router.push('login');
-           }
+            }
         },
         updated() {
-           if(this.show.every(this.checkAdult)){
-               this.ismt=false;
-           }else{
-               this.ismt=true;
-           }
+            if (this.show.length > 0) {
+                if (this.show.every(this.checkAdult)) {
+                    this.ismt = false;
+                } else {
+                    this.ismt = true;
+                }
+            }
         },
     }
 </script>
@@ -159,22 +220,25 @@ import { Toast } from 'mint-ui';
         width: 10%;
         text-align: center
     }
-     .warp{
-         width: 90%;
-         display: flex;
-         box-shadow: 0px 1px 6px #f6ecec;
-         height: 120px;
-     }
+
+    .warp {
+        width: 100%;
+        display: flex;
+        box-shadow: 0px 1px 6px #f6ecec;
+        height: 120px;
+    }
+
     .shop-icon i {
         font-size: 20px;
         line-height: 120px;
         font-weight: normal;
         color: #b3a7a7;
     }
-   
-    .icon-red{
-      color:#ff6243 !important;
+
+    .icon-red {
+        color: #ff6243 !important;
     }
+
     .shop-picture {
         width: 40%;
         text-align: center;
@@ -254,7 +318,8 @@ import { Toast } from 'mint-ui';
         margin-top: 1px;
         margin-right: 10px
     }
-    .allele{
+
+    .allele {
         width: 100%;
         height: 2.3rem;
         display: flex;
@@ -266,42 +331,54 @@ import { Toast } from 'mint-ui';
         left: 0px;
         margin-top: -6rem;
     }
-    .all_icon{
+
+    .all_icon {
         width: 10%;
-       text-align: center;
+        text-align: center;
     }
-    .all_span{
+
+    .all_span {
         width: 15%;
     }
-    .all_span span{
+
+    .all_span span {
         color: #645555;
         font-size: 16px;
         line-height: 2.2rem;
     }
-    .all_total{
+
+    .all_total {
         width: 40%;
         text-align: center;
     }
-    .all_total span{
+
+    .all_total span {
         font-size: 16px;
         font-family: "微软雅黑";
         font-weight: normal;
         line-height: 2.2rem;
     }
-    .all_settlement{
+
+    .all_settlement {
         width: 35%;
     }
-    .all_settlement button{
+
+    .all_settlement button {
         width: 100%;
         height: 2.2rem;
         background: #fe2818;
         color: #ffffff;
-        border: 1px solid  #ff3d00;
+        border: 1px solid #ff3d00;
     }
-    .allele i{
-    font-size: 20px;
-    font-weight: normal;
-    color: #b3a7a7;
-    line-height: 2.2rem;
+
+    .allele i {
+        font-size: 20px;
+        font-weight: normal;
+        color: #b3a7a7;
+        line-height: 2.2rem;
+    }
+
+    .mint-msgbox {
+        width: 65%;
     }
 </style>
