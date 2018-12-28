@@ -24,8 +24,11 @@
                             <input type="password" placeholder="确认密码" autocomplete="new-password" v-model="dbpassword">
                             <p v-if="udbpasssword">两次密码输入不一致</p>
                         </div>
-                        <div>
-                            <vue-vuecode style="text-align: center" :width="canwidth" ref="dm" v-on:verByValue="datapas"></vue-vuecode>
+                        <div class="content_foot_div">
+                            <!-- <vue-vuecode style="text-align: center" :width="canwidth" ref="dm" v-on:verByValue="datapas"></vue-vuecode> -->
+                            <input type="text" placeholder="请输入短信验证码" v-model="message" style="width: 49%">
+                            <a href="javascript:;" class="content_foot_a" @click="msg" v-if='disa'>获取验证码</a>
+                            <a href="javascript:;" class="content_foot_a tion" v-else='disa'>{{intr4}}</a>
                         </div>
                         <div class="content_foot_div">
                             <p v-if="code">验证码输入错误</p>
@@ -39,10 +42,15 @@
     </div>
 </template>
 <script>
-    import abc from '../sub/vue-Verification'
+    // import abc from '../sub/vue-Verification'
     export default {
-        components: {
-            "vue-vuecode": abc
+        // components: {
+        //     "vue-vuecode": abc
+        // },
+        computed: {
+            intr5: function () {
+
+            }
         },
         data() {
             return {
@@ -57,17 +65,17 @@
                 intr: "",
                 intr2: "",
                 intr3: "",
+                intr4: "获取验证码",
                 canwidth: "150",
-                arr: { phone: false, email: false, password: false, dbpwd: false, code: false },
-                Ver: "",
-                code: false,
-                modal: false
+                arr: { phone: false, email: false, password: false, dbpwd: false, msg: true },
+                modal: false,
+                message: "",
+                disa: true,
+                timer: null,
+                count: ""
             }
         },
         methods: {
-            datapas(data) {
-                this.Ver = data
-            },
             measure(data, key, reg) {
                 if (!data) {
                     return
@@ -94,17 +102,86 @@
                     }
                 }
             },
-
+            msg() {
+                if (this.disa) {
+                    if (this.arr.phone == true) {
+                        this.axios.post(
+                            "http://127.0.0.1:3000/user/phone",
+                            `mobile=${this.phone}`
+                        ).then(res => {
+                            localStorage.setItem("timer", res.data.time)
+                            time()
+                            if (res.data.code == 200) {
+                                this.Toast({
+                                    message: '已发送',
+                                    position: 'middle',
+                                    duration: 2000
+                                });
+                                this.arr.msg = true
+                            } else if (res.data.code != 200) {
+                                this.Toast({
+                                    message: '发送失败',
+                                    position: 'middle',
+                                    duration: 2000
+                                });
+                                this.arr.msg = false
+                            }
+                        })
+                    } else {
+                        this.Toast({
+                            message: '请输入正确的手机号码',
+                            position: 'middle',
+                            duration: 2000
+                        });
+                    }
+                } else {
+                    return
+                }
+            },
+            time() {
+                let second = localStorage.getItem('timer')
+                if (second != undefined) {
+                    const TIME_COUNT = 60;
+                    if (!this.timer) {
+                        this.count = TIME_COUNT;
+                        this.disa = false;
+                        this.timer = setInterval(() => {
+                            let second2 = new Date().getTime()
+                            if ((second2 - second) < 60000) {
+                                this.count = 60 - parseInt((second2 - second) / 1000)
+                                this.intr4 = this.count + "秒后重新发送"
+                            } else {
+                                this.disa = true;
+                                clearInterval(this.timer);
+                                this.timer = null;
+                                this.intr4 = "获取验证码"
+                                localStorage.removeItem('timer')
+                            }
+                        }, 1000)
+                    }
+                } else {
+                    return null
+                }
+            },
             signin($event) {
                 var phone = this.phone
                 var email = this.email
                 var password = this.password
                 var dbpassword = this.dbpassword
                 var key = this.arr
+                var msg = this.message
                 var reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,16}$/
 
                 if (!key.phone == true || !key.email == true) {
                     return
+                }
+                if (!msg) {
+                    this.Toast({
+                        message: '短信验证码不能为空',
+                        position: 'middle',
+                        duration: 2000
+                    });
+                    return null
                 }
                 if (!password) return
                 if (reg.test(password)) {
@@ -124,16 +201,8 @@
                     key.dbpwd = false
                     return
                 }
-
-                if (!this.Ver) {
-                    this.$refs.dm.freshen()
-                    this.code = true
-                    key.code = false
+                if(key.msg==false){
                     return
-                } else {
-                    this.$refs.dm.freshen()
-                    this.code = false
-                    key.code = true
                 }
 
 
@@ -163,11 +232,12 @@
                 for (var i in key) {
                     a += key[i]
                 }
-                if (a == 5) {
+                if (a==5) {
                     let postData = this.qs.stringify({
                         phone: phone,
                         email: email,
-                        password: password
+                        password: password,
+                        obj:msg
                     })
                     this.axios({
                         method: "post",
@@ -180,7 +250,14 @@
                                 position: 'middle',
                                 duration: 2000
                             });
+                            localStorage.removeItem('timer')
                             this.$router.push('/');
+                        }else if(res.data==404){
+                            this.Toast({
+                                message: '短信验证码输入错误',
+                                position: 'middle',
+                                duration: 2000
+                            });
                         }
                     })
                 } else {
@@ -191,7 +268,10 @@
                     });
                 }
             },
-        }
+        },
+        created() {
+            this.time()
+        },
     }
 
 </script>
@@ -239,10 +319,11 @@
     }
 
     .content_foot_div {
+        width: 100%;
         position: relative;
         text-align: center;
         margin-bottom: 15px;
-
+        text-align: center
     }
 
     .content_foot_div input {
@@ -261,6 +342,17 @@
         color: #f90a0a;
         margin-top: 10px;
         font-size: 14px;
+    }
+
+    .content_foot_a {
+        display: inline-block;
+        width: 30%;
+        height: 42px;
+        border: 1px solid red;
+        font-size: 14px;
+        color: #f7f7f7;
+        background: #f90a0a;
+        line-height: 40px;
     }
 
     /*模态框*/
@@ -310,5 +402,11 @@
         width: 100%;
         cursor: pointer;
         padding-left: 0;
+    }
+
+    .tion {
+        color: #161515;
+        border: 1px solid #fafafa;
+        background: #d8cbcb
     }
 </style>

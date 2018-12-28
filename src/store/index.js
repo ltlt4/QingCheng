@@ -1,6 +1,6 @@
-import Vue from 'vue';
+// import Vue from 'vue';
 //引入Vuex
-import Vuex from 'vuex';
+// import Vuex from 'vuex';
 Vue.use(Vuex);
 const store = new Vuex.Store({
     state:{
