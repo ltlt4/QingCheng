@@ -96,7 +96,7 @@
         }).then(action => {
           if (action == 'confirm') {
             this.axios.get(
-              "http://127.0.0.1:3000/user/signout"
+              "http://qingcheng123.applinzi.com:5050/user/signout"
             )
             localStorage.removeItem("uid")
             this.$store.commit('signout')
@@ -196,6 +196,7 @@
     position: relative;
     z-index: 800;
     background: #ff6243;
+    
   }
 
   .icon_color {

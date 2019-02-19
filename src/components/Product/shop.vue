@@ -55,7 +55,7 @@
                     <div class="shop-left">
                         <div class="left-content">
                             <div class="left_content-top">
-                                <div>
+                                <div style="height:275px">
                                     <mt-swipe :auto="0" class="swipetwo" :continuous="false" :showIndicators="false">
                                         <mt-swipe-item v-for="(item,i) of list_url" :key="i">
                                             <img :src="item">
@@ -195,7 +195,7 @@
             var pid = this.$route.params.pid;
             this.pid = this.$route.params.pid
             this.axios.get(
-                `http://127.0.0.1:3000/product/shop?pid=${pid}`
+                `http://localhost:5050/product/shop?pid=${pid}`
             ).then(res => {
                 this.list = res.data[0]
                 this.list_url = this.list.img_url.split(",")
@@ -213,7 +213,7 @@
                 }
             });
             this.axios.get(
-                `http://127.0.0.1:3000/product/shopch?pid=${pid}`
+                `http://localhost:5050/product/shopch?pid=${pid}`
             ).then(res => {
                 this.canshu = res.data[0]
                 let h = this.canshu
@@ -260,7 +260,7 @@
                 })
                 this.axios({
                     method: "post",
-                    url: "http://127.0.0.1:3000/product/shopcar",
+                    url: "http://localhost:5050/product/shopcar",
                     data: postData
                 }).then(res => {
                     if (res.data == 1) {

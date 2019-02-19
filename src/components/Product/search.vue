@@ -45,7 +45,7 @@
             getParams() {
                 this.information = this.$route.query.site
                 this.axios.get(
-                    "http://127.0.0.1:3000/search/shop?information=" + this.information
+                    "http://qingcheng123.applinzi.com/search/shop?information=" + this.information
                 ).then(res => {
                     if (res.data[0] == 1) {
                         this.show = true

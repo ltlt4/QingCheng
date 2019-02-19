@@ -50,7 +50,7 @@
         },
         created() {
             this.axios.get(
-                "http://127.0.0.1:3000/home/swipe"
+                "http://qingcheng123.applinzi.com:5050/home/swipe"
             ).then(res=>{
                 for(var i=0;i<res.data.length;i++){
                     this.listL.push(res.data[i].img_url)
@@ -68,6 +68,7 @@
     .home-lun {
         position: relative;
         z-index: 1;
+        height: 225px;
     }
     .swipe img{
         width: 100%;

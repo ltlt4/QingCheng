@@ -31,7 +31,7 @@
         },
         created() {
             this.axios.get(
-                "http://127.0.0.1:3000/product/list"
+                "http://qingcheng123.applinzi.com:5050/product/list"
             ).then(res => {
                 this.list = res.data
             })

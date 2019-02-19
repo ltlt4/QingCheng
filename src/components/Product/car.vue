@@ -74,7 +74,7 @@
                 }).then((action) => {
                     if (action == 'confirm') {
                         this.axios.post(
-                            "http://127.0.0.1:3000/product/delete",
+                            "http://localhost:5050/product/delete",
                             `pid=${this.list[i].pid}&color=${this.list[i].color}`
                         ).then(res => {
                             if (res.data == 1) {
@@ -155,7 +155,7 @@
             },
             readcar() {
                 this.axios.get(
-                    "http://127.0.0.1:3000/product/readcar"
+                    "http://localhost:5050/product/readcar"
                 ).then(res => {
                     this.list = res.data
                     for (var i = 0; i < this.list.length; i++) {

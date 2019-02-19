@@ -74,7 +74,7 @@
                 this.but = true;
                 this.axios({
                     method: "post",
-                    url: "http://127.0.0.1:3000/user/login",
+                    url: "http://localhost:5050/user/login",
                     data: postData
                 }).then(res => {
                     if (res.data[0] == 1) {
@@ -101,7 +101,6 @@
         padding: 50px 0 80px 0;
         overflow: hidden;
         background: #f7f7f7;
-        height: 100%;
     }
 
     .app-logins .proregister {

@@ -27,7 +27,7 @@
                         <div class="content_foot_div">
                             <!-- <vue-vuecode style="text-align: center" :width="canwidth" ref="dm" v-on:verByValue="datapas"></vue-vuecode> -->
                             <input type="text" placeholder="请输入短信验证码" v-model="message" style="width: 49%">
-                            <a href="javascript:;" class="content_foot_a" @click="msg" v-if='disa'>获取验证码</a>
+                            <a href="javascript:;" class="content_foot_a" @click="msg" v-if='disa'>获取短信验证码</a>
                             <a href="javascript:;" class="content_foot_a tion" v-else='disa'>{{intr4}}</a>
                         </div>
                         <div class="content_foot_div">
@@ -106,11 +106,11 @@
                 if (this.disa) {
                     if (this.arr.phone == true) {
                         this.axios.post(
-                            "http://127.0.0.1:3000/user/phone",
+                            "http://localhost:5050/user/phone",
                             `mobile=${this.phone}`
                         ).then(res => {
                             localStorage.setItem("timer", res.data.time)
-                            time()
+                            this.time()
                             if (res.data.code == 200) {
                                 this.Toast({
                                     message: '已发送',
@@ -207,7 +207,7 @@
 
 
                 this.axios.post(
-                    "http://127.0.0.1:3000/user/singin",
+                    "http://localhost:5050/user/singin",
                     `phone=${phone}&email=${email}`
                 ).then(res => {
                     if (res.data[0] == false) {
@@ -241,7 +241,7 @@
                     })
                     this.axios({
                         method: "post",
-                        url: "http://127.0.0.1:3000/user/reg",
+                        url: "http://localhost:5050/user/reg",
                         data: postData
                     }).then(res => {
                         if (res.data == 1) {

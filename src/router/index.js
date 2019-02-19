@@ -34,5 +34,10 @@ export default new VueRouter({
     name:'Search',
     component:resolve => require(['@/components/Product/search'], resolve)
     },
+    {
+      path:"/user",
+      name:"User",
+      component:resolve => require(['@/components/login/user'], resolve)
+    }
   ]
 })
